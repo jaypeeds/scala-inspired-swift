@@ -51,24 +51,24 @@ enum Move: StateChanger {
     func change(state: State) -> State {
         var changed = state
         switch self {
-	        case .Empty(let glass):
-	            changed[glass] = 0
+            case .Empty(let glass):
+                changed[glass] = 0
                 return changed
-	        case .Fill(let glass):
-	            changed[glass] = CAPACITIES[glass]
+            case .Fill(let glass):
+                changed[glass] = CAPACITIES[glass]
                 return changed
-	        case let .Pour(from, to):
-	            let availQty = state[from]
-	            let availCap = CAPACITIES[to] - state[to]
-	            if availQty >= availCap {
-	                changed[from] = availQty - availCap
-	                changed[to] = CAPACITIES[to]
-	            } else {
-	                changed[from] = 0
-	                changed[to] += availQty
-	            }
+            case let .Pour(from, to):
+                let availQty = state[from]
+                let availCap = CAPACITIES[to] - state[to]
+                if availQty >= availCap {
+                    changed[from] = availQty - availCap
+                    changed[to] = CAPACITIES[to]
+                } else {
+                    changed[from] = 0
+                    changed[to] += availQty
+                }
                 return changed
-	        default:
+            default:
                 return state
         }
     }
@@ -79,6 +79,7 @@ Move.Pour(0,2).change(Move.Fill(0).change(initialState))
 
 ```
 At this point, we can already simplify our life with the definition of a custom operator ~~ the double tilde symbolising the flowing water, it also facilitates the description of moves by allowing extensions to the right
+
 ```swift
 infix operator ~~ { associativity left precedence 160 }
 
@@ -93,16 +94,17 @@ initialState ~~ Move.Fill(0) ~~ Move.Pour(0, 2)
 We`ve already achieved a lot, we have a kind of manual calculator that can evaluate what a sequence of moves will provide as a final state.
 
 What if we want to automate that calculator:
-* Here's an initial state
-* Here's an array of moves
+
+* Here’s an initial state
+* Here’s an array of moves
 
 What will that array produce ?
 
-Let's step back a bit, this is a well-known problem:
-* Instead of the ~~ operator, let's consider the + operator
-* Instead of an array of moves, let's consider an array of integers
-* Let's use 0 as the initial state
+Let’s step back a bit, this is a well-known problem:
 
+* Instead of the ~~ operator, let’s consider the + operator
+* Instead of an array of moves, let’s consider an array of integers
+* Let’s use 0 as the initial state
 Using addition, the numbers, and zero in the same way, the outcome of these operations is the sum of all integers. A more academic name for this is the reduction of an array of integer by the addition operator. It already exists in the standard library.
 
 ```swift
@@ -116,7 +118,7 @@ So what about this:
 let simulation = [Move.Fill(0), Move.Pour(0,2)]
 simulation.reduce(initialState, ~~)
 ```
-Now, here's a less obvious usage of the reduce operation, and although we won't use it as is, since a standard library function exisits, let's detail how it could be implemented: 
+Now, here's a less obvious usage of the reduce operation, and although we won't use it as is, since a standard library function exists, let's detail how it could be implemented: 
 
 How to tell if the nums array contains 2?
 A classic solution is to map a predicate which will return an array of boolean:
@@ -139,18 +141,18 @@ contains(nums, 2)
 
 ## Episode 3
 
-Wow, we've acomplished a lot already. We know how to evaluate if a sequence of moves will provide a state that may or not contain the target level of water target of this problem. 
+Wow, we've accomplished a lot already. We know how to evaluate if a sequence of moves will provide a state that may or not contain the target level of water  of this problem. 
 
 ```swift
 let TARGET = 7
 let isSolution = contains(simulation.reduce(initialState, ~~), TARGET)
 ```
-OK. Let's shift gears, and let the computer generate the simulation adn evaluate it by itself. This is what is called Artificial Intelligence!
+OK. Let's shift gears, and let the computer generate the simulation and evaluate it by itself. This is what is called Artificial Intelligence!
 
 Are there that many choices?
 * How many Empty(n), with n in glasses : 3
 * How many Fill(n), with n in glasses : 3
-* How many Pour(n,p), it's up to 3x3, but Pour(0,0), Pour'1,1) and Pour(2,2) are not valid, all the n = m are invalid
+* How many Pour(n,p), it's up to 3x3, but Pour(0,0), Pour'1,1) and Pour(2,2) are not valid, all the n = p are invalid
 
 With our setup there are only 3 + 3 + (3 x 3) - 3 = 12 different choices for a move.
 Given our initial state only 3 first moves are relevant, the 3 Fill(n). Let Move provide its values itself
@@ -159,24 +161,24 @@ Let's also shift gears about our model of the problem, let's call the sequence o
 
 ```swift
 protocol Enumerable {
-	class var values:[Move] {get}
+    class var values:[Move] {get}
 }
 extension Move: Enumerable {
-	static var values:[Move] {
-		var moves = [Move]()
-		for g in glasses {
-    		moves.append(Move.Empty(g))
-		}
-		for g in glasses {
-    		moves.append(Move.Fill(g))	
-		}
-		for g in glasses {
-    		for h in filter(glasses, {x in x != g}) {
-        		moves.append(Move.Pour(g,h))
-    		}
-		}
-		return moves
-	}
+    static var values:[Move] {
+        var moves = [Move]()
+        for g in glasses {
+            moves.append(Move.Empty(g))
+        }
+        for g in glasses {
+            moves.append(Move.Fill(g))  
+        }
+        for g in glasses {
+            for h in filter(glasses, {x in x != g}) {
+                moves.append(Move.Pour(g,h))
+            }
+        }
+        return moves
+    }
 }
 Move.values
 ```
@@ -187,7 +189,7 @@ protocol TextRepresentable {
     func asText() -> String
 }
 extension Move: TextRepresentable {
-	    func asText() -> String {
+        func asText() -> String {
         switch self {
         case .Empty(let glass): return "Empty(\(glass))"
         case .Fill(let glass): return "Fill(\(glass))"
@@ -204,7 +206,7 @@ To resolve the problem, we will start from 3 possible initial moves:
 * Fill(1)
 * Fill(2)
 
-For each of these iniital we will add another move, and build arrays of Move we will define as Paths
+For each of these iniital moves, we will add another move, and build arrays of Move we will define as Paths
 
 The number of Paths grows as more steps are added since several choices are available for each new step.
 
@@ -231,11 +233,11 @@ b
 extension Move: Equatable {   
 }
 func == (left: Move, right: Move) -> Bool {
-	return left.asText() == right.asText()
+    return left.asText() == right.asText()
 }
 
 func != (left: Move, right: Move) -> Bool {
-	return !(right == left)
+    return !(right == left)
 }
 
 func extend(from: [Path]) -> [Path] {
@@ -259,11 +261,11 @@ func resolve(paths: [Path], target: Int) {
     func isSolution(path: Path) -> Bool {
         return contains(path.reduce(initialState, ~~), target)
     }
-	let (solutions, others) = partition(paths, isSolution)
-	if (solutions.count > 0) {
-		solutions.map({s in println("Solution: \(s.map({m in m.asText()})) -> \(s.reduce(initialState, ~~))")})
-	} else {
-	   resolve(extend(others), target)
+    let (solutions, others) = partition(paths, isSolution)
+    if (solutions.count > 0) {
+        solutions.map({s in println("Solution: \(s.map({m in m.asText()})) -> \(s.reduce(initialState, ~~))")})
+    } else {
+       resolve(extend(others), target)
     }
 }
 
