@@ -122,11 +122,10 @@ func extend(from: [Path]) -> [Path] {
     return result
 }
 
-func isSolution(path: Path) -> Bool {
-    return contains(path.reduce(initialState, ~~), TARGET)
-}
-
 func resolve(paths: [Path], target: Int) {
+    func isSolution(path: Path) -> Bool {
+        return contains(path.reduce(initialState, ~~), TARGET)
+    }
     let (solutions, others) = partition(paths, isSolution)
     if (solutions.count > 0) {
         solutions.map({s in println("Solution: \(s.map({m in m.asText()})) -> \(s.reduce(initialState, ~~))")})
