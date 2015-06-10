@@ -1,1 +1,1 @@
-isThisTwo.reduce(false, |)
+// isThisTwo.reduce(false, combine: ||)

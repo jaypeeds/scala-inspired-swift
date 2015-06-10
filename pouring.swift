@@ -35,8 +35,6 @@ enum Move: StateChanger {
                     changed[to] += availQty
                 }
                 return changed
-            default:
-                return state
         }
     }
 }
@@ -51,7 +49,7 @@ func ~~ (left: State, right: Move) -> State {
 let TARGET = 7
 
 protocol Enumerable {
-    class var values:[Move] {get}
+    static var values:[Move] {get}
 }
 extension Move: Enumerable {
     static var values:[Move] {
@@ -124,15 +122,15 @@ func extend(from: [Path]) -> [Path] {
 
 func resolve(paths: [Path], target: Int) {
     func isSolution(path: Path) -> Bool {
-        return contains(path.reduce(initialState, ~~), target)
+        return path.reduce(initialState, ~~).contains(target)
     }
-    let (solutions, others) = partition(paths, isSolution)
+    let (solutions, others) = partition(paths, predicate: isSolution)
     if (solutions.count > 0) {
-        solutions.map({s in println("Solution: \(s.map({m in m.asText()})) -> \(s.reduce(initialState, ~~))")})
+        solutions.map({s in print("Solution: \(s.map({m in m.asText()})) -> \(s.reduce(initialState, ~~))")})
     } else {
-        resolve(extend(others), target)
+        resolve(extend(others), target: target)
     }
 }
 
-resolve([[]], TARGET)
+resolve([[]], target: TARGET)
 

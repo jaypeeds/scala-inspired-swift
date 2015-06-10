@@ -1,1 +1,1 @@
-contains(nums, 2)
+nums.contains(2)

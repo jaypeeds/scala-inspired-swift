@@ -7,13 +7,12 @@ func partition<T>(ar: [T], predicate: T->Bool) -> ([T],[T]) {
     return(ar.filter(predicate), ar.filter(antiPredicate))
 }
 
-let (a,b) = partition(nums, {n in n > 2})
+let (a,b) = partition(nums, predicate:{n in n > 2})
 a
 b
 
 extension Move: Equatable {   
 }
-
 func == (left: Move, right: Move) -> Bool {
 	return left.asText() == right.asText()
 }
@@ -29,7 +28,7 @@ func extend(from: [Path]) -> [Path] {
         if lastMove == nil {
             result = [[Move.Fill(0)], [Move.Fill(1)], [Move.Fill(2)]]
         } else {
-            for move in filter(Move.values, {x in x != lastMove!}) {
+            for move in Move.values.filter({x in x != lastMove!}) {
                 var path = fromPath
                 path.append(move)
                 result.append(path)
@@ -41,14 +40,14 @@ func extend(from: [Path]) -> [Path] {
 
 func resolve(paths: [Path], target: Int) {
     func isSolution(path: Path) -> Bool {
-        return contains(path.reduce(initialState, ~~), target)
+        return path.reduce(initialState, combine: ~~).contains(target)
     }
-	let (solutions, others) = partition(paths, isSolution)
+    let (solutions, others) = partition(paths, predicate: isSolution)
 	if (solutions.count > 0) {
-		solutions.map({s in println("Solution: \(s.map({m in m.asText()})) -> \(s.reduce(initialState, ~~))")})
+        solutions.map({s in print("Solution: \(s.map({m in m.asText()})) -> \(s.reduce(initialState, combine: ~~))")})
 	} else {
-	   resolve(extend(others), target)
+	   resolve(extend(others), target: target)
     }
 }
 
-resolve([[]], TARGET)
+resolve([[]], target: TARGET)

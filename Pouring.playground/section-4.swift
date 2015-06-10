@@ -28,8 +28,6 @@ enum Move: StateChanger {
 	                changed[to] += availQty
 	            }
                 return changed
-	        default:
-                return state
         }
     }
 }

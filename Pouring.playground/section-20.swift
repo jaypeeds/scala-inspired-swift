@@ -1,5 +1,5 @@
 protocol Enumerable {
-	class var values:[Move] {get}
+	static var values:[Move] {get}
 }
 extension Move: Enumerable {
 	static var values:[Move] {
@@ -11,7 +11,7 @@ extension Move: Enumerable {
     		moves.append(Move.Fill(g))	
 		}
 		for g in glasses {
-    		for h in filter(glasses, {x in x != g}) {
+    		for h in glasses.filter({x in x != g}) {
         		moves.append(Move.Pour(g,h))
     		}
 		}
