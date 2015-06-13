@@ -61,7 +61,7 @@ extension Move: Enumerable {
             moves.append(Move.Fill(g))  
         }
         for g in glasses {
-            for h in filter(glasses, {x in x != g}) {
+            for h in glasses.filter({x in x != g}) {
                 moves.append(Move.Pour(g,h))
             }
         }
@@ -110,7 +110,7 @@ func extend(from: [Path]) -> [Path] {
         if lastMove == nil {
             result = [[Move.Fill(0)], [Move.Fill(1)], [Move.Fill(2)]]
         } else {
-            for move in filter(moves, {x in x != lastMove!}) {
+            for move in moves.filter({x in x != lastMove!}) {
                 var path = fromPath
                 path.append(move)
                 result.append(path)
@@ -122,11 +122,11 @@ func extend(from: [Path]) -> [Path] {
 
 func resolve(paths: [Path], target: Int) {
     func isSolution(path: Path) -> Bool {
-        return path.reduce(initialState, ~~).contains(target)
+        return path.reduce(initialState, combine: ~~).contains(target)
     }
     let (solutions, others) = partition(paths, predicate: isSolution)
     if (solutions.count > 0) {
-        solutions.map({s in print("Solution: \(s.map({m in m.asText()})) -> \(s.reduce(initialState, ~~))")})
+        solutions.map({s in print("Solution: \(s.map({m in m.asText()})) -> \(s.reduce(initialState, combine: ~~))")})
     } else {
         resolve(extend(others), target: target)
     }
