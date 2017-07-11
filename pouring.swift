@@ -18,32 +18,32 @@ enum Move: StateChanger {
     func change(state: State) -> State {
         var changed = state
         switch self {
-            case .Empty(let glass):
-                changed[glass] = 0
-                return changed
-            case .Fill(let glass):
-                changed[glass] = CAPACITIES[glass]
-                return changed
-            case let .Pour(from, to):
-                let availQty = state[from]
-                let availCap = CAPACITIES[to] - state[to]
-                if availQty >= availCap {
-                    changed[from] = availQty - availCap
-                    changed[to] = CAPACITIES[to]
-                } else {
-                    changed[from] = 0
-                    changed[to] += availQty
-                }
-                return changed
+        case .Empty(let glass):
+            changed[glass] = 0
+            return changed
+        case .Fill(let glass):
+            changed[glass] = CAPACITIES[glass]
+            return changed
+        case let .Pour(from, to):
+            let availQty = state[from]
+            let availCap = CAPACITIES[to] - state[to]
+            if availQty >= availCap {
+                changed[from] = availQty - availCap
+                changed[to] = CAPACITIES[to]
+            } else {
+                changed[from] = 0
+                changed[to] += availQty
+            }
+            return changed
         }
     }
 }
 
-infix operator ~~ { associativity left precedence 160 }
+infix operator ~~ : MultiplicationPrecedence
 
 // Usage: initial_state ~~ move0 ~~ move1 ~~ move2
 func ~~ (left: State, right: Move) -> State {
-    return right.change(left)
+    return right.change(state:left)
 }
 
 let TARGET = 7
@@ -58,7 +58,7 @@ extension Move: Enumerable {
             moves.append(Move.Empty(g))
         }
         for g in glasses {
-            moves.append(Move.Fill(g))  
+            moves.append(Move.Fill(g))
         }
         for g in glasses {
             for h in glasses.filter({x in x != g}) {
@@ -73,7 +73,7 @@ protocol TextRepresentable {
     func asText() -> String
 }
 extension Move: TextRepresentable {
-        func asText() -> String {
+    func asText() -> String {
         switch self {
         case .Empty(let glass): return "Empty(\(glass))"
         case .Fill(let glass): return "Fill(\(glass))"
@@ -84,14 +84,16 @@ extension Move: TextRepresentable {
 
 typealias Path = [Move]
 
-func partition<T>(ar: [T], predicate: T->Bool) -> ([T],[T]) {
+func partition<T>(ar: [T],
+               predicate: @escaping (T)->Bool) -> ([T],[T]) {
     func antiPredicate(value: T) -> Bool {
         return !(predicate(value))
     }
     return(ar.filter(predicate), ar.filter(antiPredicate))
 }
 
-extension Move: Equatable {   
+
+extension Move: Equatable {
 }
 
 func == (left: Move, right: Move) -> Bool {
@@ -122,15 +124,15 @@ func extend(from: [Path]) -> [Path] {
 
 func resolve(paths: [Path], target: Int) {
     func isSolution(path: Path) -> Bool {
-        return path.reduce(initialState, combine: ~~).contains(target)
+        return path.reduce(initialState, ~~).contains(target)
     }
-    let (solutions, others) = partition(paths, predicate: isSolution)
+    let (solutions, others) = partition(ar: paths, predicate: isSolution)
     if (solutions.count > 0) {
-        solutions.map({s in print("Solution: \(s.map({m in m.asText()})) -> \(s.reduce(initialState, combine: ~~))")})
+        solutions.map({s in print("Solution: \(s.map({m in m.asText()})) -> \(s.reduce(initialState,~~))")})
     } else {
-        resolve(extend(others), target: target)
+        resolve(paths: extend(from:others), target: target)
     }
 }
 
-resolve([[]], target: TARGET)
+resolve(paths:[[]], target: TARGET)
 
