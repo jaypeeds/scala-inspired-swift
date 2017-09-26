@@ -1,8 +1,11 @@
+import Foundation
+
 typealias State = [Int]
 
 let CAPACITIES = [3, 5, 9]
-var initialState = CAPACITIES.map({x in x * 0})
-
+print("Capacities: \( CAPACITIES )")
+let initialState = CAPACITIES.map({x in x * 0})
+print("Initial state: \( initialState)")
 let glasses = 0..<CAPACITIES.count
 
 protocol StateChanger {
@@ -38,13 +41,15 @@ enum Move: StateChanger {
         }
     }
 }
+// print(Move.Pour(0,2).change(state: Move.Fill(0).change(state: initialState)))
 
-infix operator ~~ : MultiplicationPrecedence
+infix operator ~~
 
 // Usage: initial_state ~~ move0 ~~ move1 ~~ move2
-func ~~ (left: State, right: Move) -> State {
-    return right.change(state:left)
+ func ~~ (left: State, right: Move) -> State {
+    return right.change(state: left)
 }
+// print(initialState ~~ Move.Fill(0) ~~ Move.Pour(0, 2))
 
 let TARGET = 7
 
@@ -68,6 +73,7 @@ extension Move: Enumerable {
         return moves
     }
 }
+// print(Move.values)
 
 protocol TextRepresentable {
     func asText() -> String
@@ -81,21 +87,19 @@ extension Move: TextRepresentable {
         }
     }
 }
+// print (Move.values.map({m in m.asText()}))
 
 typealias Path = [Move]
 
-func partition<T>(ar: [T],
-               predicate: @escaping (T)->Bool) -> ([T],[T]) {
+func partition<T>(ar: [T], predicate: @escaping (T)->Bool) -> ([T],[T]) {
     func antiPredicate(value: T) -> Bool {
         return !(predicate(value))
     }
     return(ar.filter(predicate), ar.filter(antiPredicate))
 }
 
-
 extension Move: Equatable {
 }
-
 func == (left: Move, right: Move) -> Bool {
     return left.asText() == right.asText()
 }
@@ -106,13 +110,12 @@ func != (left: Move, right: Move) -> Bool {
 
 func extend(from: [Path]) -> [Path] {
     var result = [Path]()
-    let moves = Move.values
     for fromPath in from {
         let lastMove = fromPath.last
         if lastMove == nil {
             result = [[Move.Fill(0)], [Move.Fill(1)], [Move.Fill(2)]]
         } else {
-            for move in moves.filter({x in x != lastMove!}) {
+            for move in Move.values.filter( {x in x != lastMove!}) {
                 var path = fromPath
                 path.append(move)
                 result.append(path)
@@ -128,11 +131,12 @@ func resolve(paths: [Path], target: Int) {
     }
     let (solutions, others) = partition(ar: paths, predicate: isSolution)
     if (solutions.count > 0) {
-        solutions.map({s in print("Solution: \(s.map({m in m.asText()})) -> \(s.reduce(initialState,~~))")})
+        let _ = solutions.map({s in print("Solution: \(s.map({m in m.asText()})) -> \(s.reduce(initialState, ~~))")})
     } else {
-        resolve(paths: extend(from:others), target: target)
+        resolve(paths: extend(from: others), target: target)
     }
 }
 
-resolve(paths:[[]], target: TARGET)
+resolve(paths: [[]], target: TARGET)
+
 
