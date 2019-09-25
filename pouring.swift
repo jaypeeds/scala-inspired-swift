@@ -2,7 +2,12 @@ import Foundation
 
 typealias State = [Int]
 
-let CAPACITIES = [3, 5, 9]
+// Prof. Odersky example
+// let CAPACITIES = [3, 5, 9]
+// let TARGET = 7
+// Die Hard 3: Jugs riddle
+let CAPACITIES = [3, 5]
+let TARGET = 4
 print("Capacities: \( CAPACITIES )")
 let initialState = CAPACITIES.map({x in x * 0})
 print("Initial state: \( initialState)")
@@ -51,7 +56,6 @@ infix operator ~~
 }
 // print(initialState ~~ Move.Fill(0) ~~ Move.Pour(0, 2))
 
-let TARGET = 7
 
 protocol Enumerable {
     static var values:[Move] {get}
@@ -113,7 +117,9 @@ func extend(from: [Path]) -> [Path] {
     for fromPath in from {
         let lastMove = fromPath.last
         if lastMove == nil {
-            result = [[Move.Fill(0)], [Move.Fill(1)], [Move.Fill(2)]]
+	    for g in glasses {
+		result.append([Move.Fill(g)])
+	    }
         } else {
             for move in Move.values.filter( {x in x != lastMove!}) {
                 var path = fromPath
