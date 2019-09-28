@@ -1,1 +1,0 @@
-isThisTwo.reduce(false, |)

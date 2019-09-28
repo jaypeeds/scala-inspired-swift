@@ -3,12 +3,13 @@ import Foundation
 typealias State = [Int]
 
 // Prof. Odersky example
-// let CAPACITIES = [3, 5, 9]
-// let TARGET = 7
+let CAPACITIES = [3, 5, 9]
+let TARGET = 7
 // Die Hard 3: Jugs riddle
-let CAPACITIES = [3, 5]
-let TARGET = 4
+// let CAPACITIES = [3, 5]
+// let TARGET = 4
 print("Capacities: \( CAPACITIES )")
+print("Target: \( TARGET )")
 let initialState = CAPACITIES.map({x in x * 0})
 print("Initial state: \( initialState)")
 let glasses = 0..<CAPACITIES.count
@@ -48,7 +49,7 @@ enum Move: StateChanger {
 }
 // print(Move.Pour(0,2).change(state: Move.Fill(0).change(state: initialState)))
 
-infix operator ~~
+infix operator ~~: AdditionPrecedence
 
 // Usage: initial_state ~~ move0 ~~ move1 ~~ move2
  func ~~ (left: State, right: Move) -> State {
