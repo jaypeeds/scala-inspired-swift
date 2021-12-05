@@ -150,9 +150,9 @@ let isSolution = contains(simulation.reduce(initialState, ~~), TARGET)
 OK. Let's shift gears, and let the computer generate the simulation and evaluate it by itself. This is what is called Artificial Intelligence!
 
 Are there that many choices?
-* How many Empty(n) are there, with n chosen in _glasses_ : 3
-* How many Fill(n) are there, with n chosen in _glasses_ : 3
-* How many Pour(n,p) are there, with n and p chosen in _glasses_, it's up to 3x3, but Pour(0,0), Pour(1,1) and Pour(2,2) are not valid, all the n = p are invalid
+* How many Empty(n) are there, with n chosen in set _glasses_ : 3
+* How many Fill(n) are there, with n chosen in set _glasses_ : 3
+* How many Pour(n,p) are there, with n and p chosen in set _glasses_, it's up to 3x3, but Pour(0,0), Pour(1,1) and Pour(2,2) are not valid, all the n = p are invalid
 
 With our setup there are only 3 + 3 + (3 x 3) - 3 = 12 different choices for a move.
 Given our initial state only 3 first moves are relevant, the 3 Fill(n). Let Move provide its values itself
