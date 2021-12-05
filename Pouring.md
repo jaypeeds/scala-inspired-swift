@@ -38,6 +38,22 @@ The state can change when one move is applied. A move will be described with a v
 Each move will change the state of the resolution into a new state. That transformation will be described as a “protoocol”, an interface that the enum must implement. For that definition, pattern matching is used, so that values can be bound to the argument of the move.
 
 ```swift
+import Foundation
+
+typealias State = [Int]
+
+// Prof. Odersky example
+// let CAPACITIES = [3, 5, 9]
+// let TARGET = 7
+// Die Hard 3: Jugs riddle
+let CAPACITIES = [3, 5]
+let TARGET = 4
+print("Capacities: \( CAPACITIES )")
+print("Target: \( TARGET )")
+let initialState = CAPACITIES.map({x in x * 0})
+print("Initial state: \( initialState)")
+let glasses = 0..<CAPACITIES.count
+
 protocol StateChanger {
     func change(state: State) -> State
 }
@@ -51,25 +67,23 @@ enum Move: StateChanger {
     func change(state: State) -> State {
         var changed = state
         switch self {
-            case .Empty(let glass):
-                changed[glass] = 0
-                return changed
-            case .Fill(let glass):
-                changed[glass] = CAPACITIES[glass]
-                return changed
-            case let .Pour(from, to):
-                let availQty = state[from]
-                let availCap = CAPACITIES[to] - state[to]
-                if availQty >= availCap {
-                    changed[from] = availQty - availCap
-                    changed[to] = CAPACITIES[to]
-                } else {
-                    changed[from] = 0
-                    changed[to] += availQty
-                }
-                return changed
-            default:
-                return state
+        case .Empty(let glass):
+            changed[glass] = 0
+            return changed
+        case .Fill(let glass):
+            changed[glass] = CAPACITIES[glass]
+            return changed
+        case let .Pour(from, to):
+            let availQty = state[from]
+            let availCap = CAPACITIES[to] - state[to]
+            if availQty >= availCap {
+                changed[from] = availQty - availCap
+                changed[to] = CAPACITIES[to]
+            } else {
+                changed[from] = 0
+                changed[to] += availQty
+            }
+            return changed
         }
     }
 }
@@ -81,11 +95,11 @@ Move.Pour(0,2).change(Move.Fill(0).change(initialState))
 At this point, we can already simplify our life with the definition of a custom operator ~~ the double tilde symbolising the flowing water, it also facilitates the description of moves by allowing extensions to the right
 
 ```swift
-infix operator ~~ { associativity left precedence 160 }
+infix operator ~~: AdditionPrecedence
 
 // Usage: initial_state ~~ move0 ~~ move1 ~~ move2
-func ~~ (left: State, right: Move) -> State {
-    return right.change(left)
+ func ~~ (left: State, right: Move) -> State {
+    return right.change(state: left)
 }
 initialState ~~ Move.Fill(0) ~~ Move.Pour(0, 2)
 ```
@@ -189,7 +203,7 @@ protocol TextRepresentable {
     func asText() -> String
 }
 extension Move: TextRepresentable {
-        func asText() -> String {
+    func asText() -> String {
         switch self {
         case .Empty(let glass): return "Empty(\(glass))"
         case .Fill(let glass): return "Fill(\(glass))"
@@ -197,6 +211,7 @@ extension Move: TextRepresentable {
         }
     }
 }
+
 Move.values.map({m in m.asText()})
 ```
 ## Episode 4 and End
@@ -219,18 +234,22 @@ Finally, we decide to stop after the first batch of solutions.
 ```swift
 typealias Path = [Move]
 
-func partition<T>(ar: [T], predicate: T->Bool) -> ([T],[T]) {
+func partition<T>(ar: [T], predicate: @escaping (T)->Bool) -> ([T],[T]) {
     func antiPredicate(value: T) -> Bool {
         return !(predicate(value))
     }
     return(ar.filter(predicate), ar.filter(antiPredicate))
 }
-
+```
+Example of usage of _partition_ with _nums_
+```swift
 let (a,b) = partition(nums, {n in n > 2})
 a
 b
-
-extension Move: Equatable {   
+```
+More operators to compare two instances of _Move_
+```swift
+extension Move: Equatable {
 }
 func == (left: Move, right: Move) -> Bool {
     return left.asText() == right.asText()
@@ -239,15 +258,19 @@ func == (left: Move, right: Move) -> Bool {
 func != (left: Move, right: Move) -> Bool {
     return !(right == left)
 }
-
+```
+How the solution is researched: By extending the collections of _Move_ ie the _Path_ 
+```swift
 func extend(from: [Path]) -> [Path] {
     var result = [Path]()
     for fromPath in from {
         let lastMove = fromPath.last
         if lastMove == nil {
-            result = [[Move.Fill(0)], [Move.Fill(1)], [Move.Fill(2)]]
+	    for g in glasses {
+		result.append([Move.Fill(g)])
+	    }
         } else {
-            for move in filter(Move.values, {x in x != lastMove!}) {
+            for move in Move.values.filter( {x in x != lastMove!}) {
                 var path = fromPath
                 path.append(move)
                 result.append(path)
@@ -256,20 +279,24 @@ func extend(from: [Path]) -> [Path] {
     }
     return result
 }
-
+```
+Finally, how to resolve this problem:
+- Staring from the initial state, generate and evaluate all the possible next move.
+- Separate the results, those that contain the target values, and those that don't.
+```swift
 func resolve(paths: [Path], target: Int) {
     func isSolution(path: Path) -> Bool {
-        return contains(path.reduce(initialState, ~~), target)
+        return path.reduce(initialState, ~~).contains(target)
     }
-    let (solutions, others) = partition(paths, isSolution)
+    let (solutions, others) = partition(ar: paths, predicate: isSolution)
     if (solutions.count > 0) {
-        solutions.map({s in println("Solution: \(s.map({m in m.asText()})) -> \(s.reduce(initialState, ~~))")})
+        let _ = solutions.map({s in print("Solution: \(s.map({m in m.asText()})) -> \(s.reduce(initialState, ~~))")})
     } else {
-       resolve(extend(others), target)
+        resolve(paths: extend(from: others), target: target)
     }
 }
 
-resolve([[]], TARGET)
+resolve(paths: [[]], target: TARGET)
 
 ```
  
