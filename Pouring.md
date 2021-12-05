@@ -152,7 +152,7 @@ OK. Let's shift gears, and let the computer generate the simulation and evaluate
 Are there that many choices?
 * How many Empty(n), with n in glasses : 3
 * How many Fill(n), with n in glasses : 3
-* How many Pour(n,p), it's up to 3x3, but Pour(0,0), Pour'1,1) and Pour(2,2) are not valid, all the n = p are invalid
+* How many Pour(n,p), it's up to 3x3, but Pour(0,0), Pour(1,1) and Pour(2,2) are not valid, all the n = p are invalid
 
 With our setup there are only 3 + 3 + (3 x 3) - 3 = 12 different choices for a move.
 Given our initial state only 3 first moves are relevant, the 3 Fill(n). Let Move provide its values itself
