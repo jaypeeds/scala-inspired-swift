@@ -135,18 +135,18 @@ simulation.reduce(initialState, ~~)
 Now, here's a less obvious usage of the reduce operation, and although we won't use it as is, since a standard library function exists, let's detail how it could be implemented: 
 
 How to tell if the nums array contains 2?
-A classic solution is to map a predicate which will return an array of boolean:
+A classic solution is to map a predicate which will return an array of false and true, according to the value in nums:
 ```swift
 let isThisTwo = nums.map({n in n == 2})
 isThisTwo
 ```
-To verify if the array contains at least one 'true' value, let's reduce it with the logical OR operator |, with false as the inital value
+To verify if the array contains at least one 'true' value, let's reduce it with the logical OR operator |, with false as the inital value. 
 
 ```swift
 isThisTwo.reduce(false, |)
 ```
 
-But more simply, we'll use the standard library:
+But much simplier, we could have used the standard library:
 
 ```swift
 contains(nums, 2)
