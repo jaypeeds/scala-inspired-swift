@@ -43,11 +43,11 @@ import Foundation
 typealias State = [Int]
 
 // Prof. Odersky example
-// let CAPACITIES = [3, 5, 9]
-// let TARGET = 7
+let CAPACITIES = [3, 5, 9]
+let TARGET = 7
 // Die Hard 3: Jugs riddle
-let CAPACITIES = [3, 5]
-let TARGET = 4
+// let CAPACITIES = [3, 5]
+// let TARGET = 4
 print("Capacities: \( CAPACITIES )")
 print("Target: \( TARGET )")
 let initialState = CAPACITIES.map({x in x * 0})
