@@ -259,7 +259,7 @@ func != (left: Move, right: Move) -> Bool {
     return !(right == left)
 }
 ```
-How the solution is researched: By extending the collections of _Move_ ie the _Path_ 
+How the solution is researched: By extending the collection of _Move_s ie the _Path_ 
 ```swift
 func extend(from: [Path]) -> [Path] {
     var result = [Path]()
